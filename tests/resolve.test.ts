@@ -87,12 +87,6 @@ function expectAbstain(result: ResolveResult): Extract<ResolveResult, { type: "a
   return result;
 }
 
-const reasonsSeen = new Set<ReasonCode>();
-function track(result: ResolveResult): ResolveResult {
-  if (result.type === "abstain") reasonsSeen.add(result.reason);
-  return result;
-}
-
 interface Row {
   name: string;
   input: ResolveInput;
@@ -252,13 +246,13 @@ const SELECTED_ROWS: Row[] = [
 
 describe("resolve: vision mode table", () => {
   it.each(VISION_ROWS)("$name -> $expected", ({ input, expected }) => {
-    expect(summary(track(resolve(input)))).toBe(expected);
+    expect(summary(resolve(input))).toBe(expected);
   });
 });
 
 describe("resolve: selected mode table", () => {
   it.each(SELECTED_ROWS)("$name -> $expected", ({ input, expected }) => {
-    expect(summary(track(resolve(input)))).toBe(expected);
+    expect(summary(resolve(input))).toBe(expected);
   });
 });
 
@@ -347,7 +341,7 @@ describe("resolve: clarify flows", () => {
     const clarify = expectClarify(resolve(input));
     expect(clarify.attribute).toBe("liquid_inside");
     const next = applyClarifyAnswer(input.attributes, "liquid_inside", "not_sure");
-    const result = track(resolve(withAttributes(input, next)));
+    const result = resolve(withAttributes(input, next));
     expect(summary(result)).toBe("abstain:unknown_condition");
     expect(expectAbstain(result).item_id).toBe("aerosol_can");
   });
@@ -376,7 +370,7 @@ describe("resolve: clarify flows", () => {
   it("glass jar: Not sure on has_lid and broken=no leaves the outcome open -> unknown_condition", () => {
     const input = selectedInput("glass_jar");
     const attrs = applyClarifyAnswer(applyClarifyAnswer(input.attributes, "has_lid", "not_sure"), "broken", "no");
-    expect(summary(track(resolve(withAttributes(input, attrs))))).toBe("abstain:unknown_condition");
+    expect(summary(resolve(withAttributes(input, attrs)))).toBe("abstain:unknown_condition");
   });
 
   it("unknown_condition when no condition matches the known attributes", () => {
@@ -385,7 +379,7 @@ describe("resolve: clarify flows", () => {
     pizza.conditions = pizza.conditions.filter((c) => c.when.food_soiled === true);
     const input = selectedInput("pizza_box", emptyAttributes(), partial);
     const attrs = applyClarifyAnswer(input.attributes, "food_soiled", "no");
-    expect(summary(track(resolve(withAttributes(input, attrs))))).toBe("abstain:unknown_condition");
+    expect(summary(resolve(withAttributes(input, attrs)))).toBe("abstain:unknown_condition");
   });
 
   it("vision values are used but a user answer is what fills a null vision attribute", () => {
@@ -440,9 +434,16 @@ describe("resolve: Change item (selected mode)", () => {
 });
 
 describe("resolve: invariants", () => {
-  it("covers all seven reason codes across the tables and flows above", () => {
-    // Runs after the tables (vitest runs tests in file order within one file).
-    expect([...reasonsSeen].sort()).toEqual([...REASON_CODES].sort());
+  it("covers all seven reason codes (self-contained: computed here, not from earlier tests' state)", () => {
+    const seen = new Set<ReasonCode>();
+    const note = (result: ResolveResult): void => {
+      if (result.type === "abstain") seen.add(result.reason);
+    };
+    for (const row of [...VISION_ROWS, ...SELECTED_ROWS]) note(resolve(row.input));
+    // unknown_condition is reachable only through a clarify flow: typed aerosol -> "Not sure".
+    const aerosol = selectedInput("aerosol_can");
+    note(resolve(withAttributes(aerosol, applyClarifyAnswer(aerosol.attributes, "liquid_inside", "not_sure"))));
+    expect([...seen].sort()).toEqual([...REASON_CODES].sort());
   });
 
   it("exports resolve and nothing else at runtime (selectBin stays module-private)", () => {

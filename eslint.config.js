@@ -11,17 +11,30 @@ const NO_SCRIPTS = {
   message: "Product code must never import scripts/** (eval and baselines are scripts-only).",
 };
 
-// Function files that must never be reachable from the browser bundle.
+// Function files outside the browser allowlist (PLAN.md 4.5). The allowlist is visionSchema.ts, providers/types.ts,
+// providers/mock.ts, mockResponses.ts, itemIds.generated.ts, closedList.ts and sha256.ts; everything else in the
+// function folder is server-only. tests/static/import-boundaries.test.ts re-checks this over the real import graph.
+const SERVER_ONLY_FILES = [
+  "**/identify/serverConfig.ts",
+  "**/identify/index.ts",
+  "**/identify/ledger.ts",
+  "**/identify/handler.ts",
+  "**/identify/imageHeader.ts",
+  "**/identify/digest.ts",
+  "**/identify/cors.ts",
+  "**/identify/ruleCatalog.ts",
+];
+// Server-only files that scripts/** may still import (the eval calls the provider transport directly).
+const SCRIPT_ALLOWED_SERVER_FILES = ["**/identify/prompt.ts", "**/identify/providers/anthropic.ts"];
+
 const NO_SERVER_ONLY = {
-  group: [
-    "**/identify/serverConfig.ts",
-    "**/identify/index.ts",
-    "**/identify/ledger.ts",
-    "**/identify/handler.ts",
-    "**/identify/prompt.ts",
-    "**/identify/providers/anthropic.ts",
-  ],
+  group: [...SERVER_ONLY_FILES, ...SCRIPT_ALLOWED_SERVER_FILES],
   message: "Browser code may import only the allowlisted function files (PLAN.md section 4.5).",
+};
+
+const NO_SERVER_ONLY_FOR_SCRIPTS = {
+  group: SERVER_ONLY_FILES,
+  message: "scripts/** may import the allowlisted function files plus prompt.ts and providers/anthropic.ts only.",
 };
 
 const NO_LEAVING_FUNCTION_FOLDER = ["**/src/**", "**/scripts/**", "**/config/**", "**/rules/**", "**/tests/**"];
@@ -84,5 +97,11 @@ export default tseslint.config(
   {
     files: ["scripts/**/*.ts", "tests/**/*.{ts,tsx}", "*.config.{js,ts}"],
     languageOptions: { globals: globals.node },
+  },
+  {
+    files: ["scripts/**/*.ts"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [NO_SERVER_ONLY_FOR_SCRIPTS] }],
+    },
   },
 );
