@@ -1,0 +1,5 @@
+# Generated live response cache, local cost ledger and exclusive-lock receipts.
+# Authored fixtures/cache is a separate tracked tree.
+/cache/
+/ledger.jsonl
+/budget.lock*

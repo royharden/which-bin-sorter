@@ -1,0 +1,1 @@
+{"fixture_id":"film_bag","method_id":"system","provenance":"mock","note":"authored, not recorded","raw":{"item_count":1,"candidates":[{"item_id":"plastic_film","confidence":0.9}],"free_label":"plastic carrier bag","attributes":{"food_soiled":null,"liquid_inside":null,"has_lid":null,"contains_battery":null,"broken":null,"compostable_marking":null,"image_quality":"good"}}}

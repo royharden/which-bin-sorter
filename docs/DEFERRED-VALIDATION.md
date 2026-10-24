@@ -187,3 +187,46 @@ M3 preserves accepted M1 rule text and source anchors: the aerosol question asks
 and the pizza-box source anchor is `#pizza_box`. The plan's narrative paraphrases differ. A live
 `invalid_vision_output` error does not contain a model id; its UI provenance is honestly labelled
 `live · response rejected`, while successful responses require `live:<confirmed model-id>`.
+
+## Added in M4 (evaluation harness)
+
+All evaluation source, 60 synthetic text rows, eight authored photo-manifest fixtures and 32 fixture cache
+records are **written, never executed**. Fixture cache is keyed by method/fixture id and labelled authored,
+not recorded. Syntax parsing does not typecheck, link modules, run Vitest, validate model behavior or measure
+accuracy/cost/latency. Real model/prices remain unconfigured; no spend is authorized by these future commands.
+
+| # | What | Why deferred | Exact activation command / procedure |
+|---|---|---|---|
+| M4-1 | Wilson hand values, metric denominators/N/A, contamination cost, grouped split, cache identity, budget/heldout guards and offline report content | Tests are source only under Dirty Mode | `npx vitest run tests/wilson.test.ts tests/riskCoverage.test.ts tests/costScore.test.ts tests/split.test.ts tests/metrics.test.ts tests/evalCache.test.ts tests/eval.offline.test.ts` |
+| M4-2 | Type/lint compatibility and AST boundaries for script transports, injected photo adapter and pure evalkit | Only the permitted syntax parser ran | `npm run typecheck && npm run lint && npx vitest run tests/static/import-boundaries.test.ts tests/static/only-resolver-selects-bins.test.ts` |
+| M4-3 | Actual offline report and optional generated limitations content | No script/generator execution permitted | `npm run eval -- --offline --fixture --split dev --out results/fixture-dev --limitations results/fixture-dev/LIMITATIONS.md`; inspect results.md/results.jsonl and every method row; a fresh output directory is required on repeat |
+| M4-4 | Dev-only grid objective, >=0.60 answer coverage, fixed tie order and explicit infeasible result | No tuning executed; fixture thresholds are not real tuning | `npx tsx scripts/tune-thresholds.ts --fixture --split dev --out results/fixture-threshold-tuning.json`; real dev cache later: `npx tsx scripts/tune-thresholds.ts --manifest eval/manifest.jsonl --split dev --out results/dev-threshold-tuning.json`; review before any manual promotion to config; tuning refuses after results/heldout.lock exists |
+| M4-5 | Pure-JS MIT decoder/encoder selection, provenance/license verification and normalization/EXIF/orientation/dimension behavior | Package choice and installation deferred; prep is against PhotoAdapter interface only | After separately auditing/installing a codec, author an adapter exporting `adapter: PhotoAdapter`; then `npx tsx scripts/prep-photos.ts --input eval/gold-input.jsonl --adapter ./scripts/activation-photo-adapter.ts --seed s31-gold-v1 --out eval/photos --manifest eval/manifest.jsonl --rules rules/fixture-city.json`; inspect .prep.json receipts and output JPEGs; input needs source_file, ids/groups, licensed gold annotations; file/hash/split are generated |
+| M4-6 | Live transport, exact returned model ID, token-bound math, ledger durability and two-process exclusion under actual I/O failures | No provider dispatch, paid call or filesystem-lock runtime exercised | With separate live/spend authorization, pin verified model and sourced prices in root config, supply ANTHROPIC_API_KEY, LIVE_MODEL_ENABLED=true and explicit EVAL_BUDGET_USD; then `npm run eval -- --live --manifest eval/manifest.jsonl --split dev --out results/live-dev`; verify preflight refusal without sufficient cap and second-process refusal while budget.lock is held; inspect append-only eval/ledger.jsonl; timeout/unknown usage retains full reservation; never clear an abandoned lock without reconciling cost |
+| M4-7 | Offline exact-identity replay of recorded live responses | No live responses exist | After M4-6: `npm run eval -- --offline --manifest eval/manifest.jsonl --split dev --out results/live-dev-replay`; no key or live flag needed; exact model config and all cache records are required; any miss or mock provenance fails |
+| M4-8 | Single heldout run and report fairness on real gold photos | Gold set absent; no exposure or run authorized | After dev tuning is frozen and live/spend authorization exists: `npm run eval -- --live --manifest eval/manifest.jsonl --split heldout --confirm-heldout-once --out results/live-heldout`; results/heldout.lock is atomically created with run/date/manifest/method/config digests and is never automatically removed; repeat refused. Review exact System subset, 5u intersection, actual equal-coverage denominators, named contamination errors and incomplete status |
+| M4-9 | Expand text corpus toward 200, collect/license 120 real photos, review ground truth, real-locality table, CLIP adapter/license/run and optional Jev | Construction bounded to >=60 text rows and authored cache; no external data/package acquisition | Review gold annotations and grouped dev/heldout counts before M4-5/M4-8. CLIP stays typed `not run`; Jev stays `not evaluated / not included`. No command can claim either ran |
+
+M4 implements an additional explicit `--fixture` selector so `--offline` alone cannot silently substitute
+authored responses for missing real cache. The no-abstain row reuses System identification and reports that
+identification's per-method cost rather than charging a second call. T1 has zero provider cost and unavailable
+latency; fixture model cost/latency remain N/A. The frozen text split is hand-authored 36/24 with item groups
+disjoint within the text track; photo preparation uses seeded item-group hashing and reports actual counts.
+Budget release archives its exclusive lock receipt; a process crash retains the lock for operator review.
+
+### M4 review rework regressions
+
+Written after M4 review round 1; **never executed** under Dirty Mode. The CLI regression uses synthetic
+header-only JPEG bytes, test-only configuration and replaced transport; it must make no provider/network call.
+
+| # | What | Why deferred | Exact activation command |
+|---|---|---|---|
+| M4-R1 | Aggregate preflight rejection writes incomplete reports/optional limitations, returns 1, makes no dispatch or spend reservation and leaves heldout unconsumed; invalid budget/occupied lock remain hard errors | Test and CLI execution forbidden during construction | `npx vitest run tests/eval.preflight.test.ts` |
+| M4-R2 | Mixed valid/rejected System attribute precision/recall/null denominators, wholly missing attribute-capable outputs, methods without attribute capability and zero-gold N/A | Tests written only; syntax parse does not establish runtime behavior | `npx vitest run tests/metrics.test.ts` |
+| M4-R3 | Different confidence tie groups expose actual independent floors and mark the equal-coverage comparison unavailable in JSON and report prose | No report or tests executed during construction | `npx vitest run tests/metrics.test.ts tests/eval.offline.test.ts` |
+
+Preflight rejection conservatively marks all planned paid methods (and System's no-abstain reuse) incomplete;
+cached paid results are not replayed on this branch. Deterministic typed-oracle/T1 rows are retained. Attribute
+capability keeps rejected/unavailable System predictions in known-gold recall and all eligible null/missing
+denominators; a method that does not predict attributes retains N/A. Equal-coverage results carry a `matched`
+or `unavailable` status; independently floored unequal coverages remain visible and are not called matched.

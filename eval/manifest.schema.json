@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "One Which Bin evaluation gold row (JSONL)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["photo_id", "file", "sha256", "item_id", "item_group", "true_attributes", "expected_outcome", "rule_id", "licence", "split"],
+  "properties": {
+    "photo_id": {"type": "string", "pattern": "^[a-zA-Z0-9_-]+$"},
+    "file": {"type": ["string", "null"], "minLength": 1},
+    "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "item_id": {"type": "string", "minLength": 1},
+    "item_group": {"type": "string", "minLength": 1, "description": "Underlying item id; out-of-table uses an explicit category. Never a photo/query id."},
+    "true_attributes": {
+      "type": "object", "additionalProperties": false,
+      "required": ["food_soiled", "liquid_inside", "has_lid", "contains_battery", "broken", "compostable_marking"],
+      "properties": {
+        "food_soiled": {"type": ["boolean", "null"]}, "liquid_inside": {"type": ["boolean", "null"]},
+        "has_lid": {"type": ["boolean", "null"]}, "contains_battery": {"type": ["boolean", "null"]},
+        "broken": {"type": ["boolean", "null"]}, "compostable_marking": {"type": ["boolean", "null"]}
+      }
+    },
+    "expected_outcome": {"type": "string", "pattern": "^(answer:[a-z0-9_]+|clarify|abstain)$"},
+    "rule_id": {"type": ["string", "null"]},
+    "licence": {"type": "string", "minLength": 1},
+    "split": {"enum": ["dev", "heldout"]},
+    "query": {"type": "string", "minLength": 1}
+  },
+  "allOf": [{
+    "if": {"properties": {"licence": {"const": "fixture"}}},
+    "then": {"properties": {"file": {"type": "null"}, "sha256": {"type": "null"}}},
+    "else": {"properties": {"file": {"type": "string"}, "sha256": {"type": "string"}}}
+  }]
+}
