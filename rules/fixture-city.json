@@ -1,0 +1,1058 @@
+{
+  "schema_version": 1,
+  "locality": {
+    "id": "fixture-city",
+    "name": "Fixture City (synthetic)",
+    "council_url": "https://fixture-city.example.invalid/"
+  },
+  "bins": [
+    {
+      "id": "recycling",
+      "label": "Recycling (blue lid)"
+    },
+    {
+      "id": "food_and_garden",
+      "label": "Food and garden (green lid)"
+    },
+    {
+      "id": "garbage",
+      "label": "Garbage (red lid)"
+    },
+    {
+      "id": "drop_off",
+      "label": "Drop-off centre"
+    },
+    {
+      "id": "hazardous_drop_off",
+      "label": "Hazardous waste drop-off"
+    }
+  ],
+  "fixture": true,
+  "entries": [
+    {
+      "id": "pizza_box",
+      "name": "Pizza box",
+      "aliases": [
+        "pizza carton",
+        "takeaway pizza box"
+      ],
+      "material": "cardboard",
+      "bin": null,
+      "conditions": [
+        {
+          "when": {
+            "food_soiled": true
+          },
+          "bin": "food_and_garden",
+          "prep_steps": [
+            "Tear the box to fit; greasy cardboard goes in with food scraps."
+          ],
+          "priority": 1
+        },
+        {
+          "when": {
+            "food_soiled": false
+          },
+          "bin": "recycling",
+          "prep_steps": [
+            "Flatten the box."
+          ],
+          "priority": 1
+        }
+      ],
+      "questions": {
+        "food_soiled": "Is the box greasy or has food stuck to it?"
+      },
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#pizza_box",
+        "section": "Fixture City A-Z (synthetic): Pizza box",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "cardboard_box",
+      "name": "Cardboard box",
+      "aliases": [
+        "shipping box",
+        "delivery box",
+        "corrugated cardboard"
+      ],
+      "material": "cardboard",
+      "bin": "recycling",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Remove tape and flatten the box."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#cardboard_box",
+        "section": "Fixture City A-Z (synthetic): Cardboard box",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "plastic_film",
+      "name": "Plastic film and bags",
+      "aliases": [
+        "plastic bag",
+        "carrier bag",
+        "cling film",
+        "bubble wrap",
+        "cellophane",
+        "bread bag"
+      ],
+      "material": "plastic film",
+      "bin": "drop_off",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Bundle clean, dry film into one bag and take it to the drop-off centre film bank."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#plastic_film",
+        "section": "Fixture City A-Z (synthetic): Plastic film and bags",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "black_plastic_tray",
+      "name": "Black plastic tray",
+      "aliases": [
+        "black food tray",
+        "black meat tray",
+        "black ready meal tray"
+      ],
+      "material": "plastic (black)",
+      "bin": "garbage",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Fixture City sorters cannot detect black plastic; scrape out food first."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#black_plastic_tray",
+        "section": "Fixture City A-Z (synthetic): Black plastic tray",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "lined_paper_cup",
+      "name": "Plastic-lined paper cup",
+      "aliases": [
+        "coffee cup",
+        "takeaway coffee cup",
+        "lined paper cup"
+      ],
+      "material": "paper with plastic lining",
+      "bin": "garbage",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Put a separate plastic lid in recycling."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#lined_paper_cup",
+        "section": "Fixture City A-Z (synthetic): Plastic-lined paper cup",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "unlined_paper_cup",
+      "name": "Unlined paper cup",
+      "aliases": [
+        "plain paper cup",
+        "water cooler cup"
+      ],
+      "material": "paper",
+      "bin": "food_and_garden",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#unlined_paper_cup",
+        "section": "Fixture City A-Z (synthetic): Unlined paper cup",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "paper_plate",
+      "name": "Unlined paper plate",
+      "aliases": [
+        "paper plate",
+        "plain paper plate"
+      ],
+      "material": "paper",
+      "bin": null,
+      "conditions": [
+        {
+          "when": {
+            "food_soiled": true
+          },
+          "bin": "food_and_garden",
+          "priority": 1
+        },
+        {
+          "when": {
+            "food_soiled": false
+          },
+          "bin": "recycling",
+          "priority": 1
+        }
+      ],
+      "questions": {
+        "food_soiled": "Is the plate greasy or does it have food on it?"
+      },
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#paper_plate",
+        "section": "Fixture City A-Z (synthetic): Unlined paper plate",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "aerosol_can",
+      "name": "Aerosol can",
+      "aliases": [
+        "aerosol",
+        "spray can",
+        "deodorant can",
+        "air freshener can"
+      ],
+      "material": "metal (pressurised)",
+      "bin": null,
+      "conditions": [
+        {
+          "when": {
+            "liquid_inside": false
+          },
+          "bin": "recycling",
+          "prep_steps": [
+            "Do not pierce or crush the can.",
+            "Put the plastic cap in recycling."
+          ],
+          "priority": 1
+        },
+        {
+          "when": {
+            "liquid_inside": true
+          },
+          "bin": "hazardous_drop_off",
+          "prep_steps": [
+            "Keep the cap on; take it to the hazardous waste drop-off."
+          ],
+          "priority": 1
+        }
+      ],
+      "questions": {
+        "liquid_inside": "Is there still product or liquid inside the can?"
+      },
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#aerosol_can",
+        "section": "Fixture City A-Z (synthetic): Aerosol can",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "small_electrical_device",
+      "name": "Small electrical item",
+      "aliases": [
+        "electric toothbrush",
+        "bluetooth speaker",
+        "vape",
+        "electronic toy",
+        "hair dryer"
+      ],
+      "material": "mixed electronics",
+      "bin": null,
+      "conditions": [
+        {
+          "when": {
+            "contains_battery": true
+          },
+          "bin": "hazardous_drop_off",
+          "prep_steps": [
+            "Built-in batteries can start bin-lorry fires; tape over any exposed terminals."
+          ],
+          "priority": 1
+        },
+        {
+          "when": {
+            "contains_battery": false
+          },
+          "bin": "drop_off",
+          "prep_steps": [
+            "Take it to the drop-off centre electricals bay."
+          ],
+          "priority": 1
+        }
+      ],
+      "questions": {
+        "contains_battery": "Does it have a built-in battery (rechargeable, or batteries you cannot take out)?"
+      },
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#small_electrical_device",
+        "section": "Fixture City A-Z (synthetic): Small electrical item",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "mobile_phone",
+      "name": "Mobile phone",
+      "aliases": [
+        "cell phone",
+        "cellphone",
+        "smartphone"
+      ],
+      "material": "mixed electronics",
+      "bin": "drop_off",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Wipe your data first; hand it in at the drop-off centre electricals counter."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#mobile_phone",
+        "section": "Fixture City A-Z (synthetic): Mobile phone",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "loose_battery",
+      "name": "Loose battery",
+      "aliases": [
+        "battery",
+        "batteries",
+        "aa battery",
+        "aaa battery",
+        "button battery",
+        "battery cell"
+      ],
+      "material": "battery",
+      "bin": "hazardous_drop_off",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Tape the terminals of lithium and button batteries."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#loose_battery",
+        "section": "Fixture City A-Z (synthetic): Loose battery",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "glass_jar",
+      "name": "Glass jar",
+      "aliases": [
+        "jar",
+        "jam jar",
+        "pasta sauce jar"
+      ],
+      "material": "glass",
+      "bin": null,
+      "conditions": [
+        {
+          "when": {
+            "broken": true
+          },
+          "bin": "garbage",
+          "prep_steps": [
+            "Wrap broken glass in newspaper or a box before it goes in the bin."
+          ],
+          "priority": 2
+        },
+        {
+          "when": {
+            "broken": false,
+            "has_lid": true
+          },
+          "bin": "recycling",
+          "prep_steps": [
+            "Take the lid off and put the metal lid in recycling separately.",
+            "Rinse the jar."
+          ],
+          "priority": 1
+        },
+        {
+          "when": {
+            "broken": false,
+            "has_lid": false
+          },
+          "bin": "recycling",
+          "prep_steps": [
+            "Rinse the jar."
+          ],
+          "priority": 1
+        }
+      ],
+      "questions": {
+        "has_lid": "Is the lid still on the jar?",
+        "broken": "Is the jar broken or cracked?"
+      },
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#glass_jar",
+        "section": "Fixture City A-Z (synthetic): Glass jar",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "clear_glass_bottle",
+      "name": "Clear glass bottle",
+      "aliases": [
+        "glass bottle",
+        "wine bottle",
+        "beer bottle"
+      ],
+      "material": "glass",
+      "bin": "drop_off",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Rinse it and take it to a glass bank at the drop-off centre."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#clear_glass_bottle",
+        "section": "Fixture City A-Z (synthetic): Clear glass bottle",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "clear_plastic_bottle",
+      "name": "Clear plastic bottle",
+      "aliases": [
+        "plastic bottle",
+        "water bottle",
+        "pop bottle",
+        "soda bottle"
+      ],
+      "material": "plastic (PET)",
+      "bin": "recycling",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Empty, rinse and put the cap back on."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#clear_plastic_bottle",
+        "section": "Fixture City A-Z (synthetic): Clear plastic bottle",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "drinking_glass",
+      "name": "Drinking glass",
+      "aliases": [
+        "tumbler",
+        "wine glass"
+      ],
+      "material": "glass (not bottle glass)",
+      "bin": null,
+      "conditions": [
+        {
+          "when": {
+            "broken": true
+          },
+          "bin": "garbage",
+          "prep_steps": [
+            "Wrap broken glass in newspaper or a box before it goes in the bin."
+          ],
+          "priority": 1
+        },
+        {
+          "when": {
+            "broken": false
+          },
+          "bin": "drop_off",
+          "prep_steps": [
+            "Drinking glass melts differently from bottle glass; take whole glasses to the drop-off centre reuse shelf."
+          ],
+          "priority": 1
+        }
+      ],
+      "questions": {
+        "broken": "Is the glass broken?"
+      },
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#drinking_glass",
+        "section": "Fixture City A-Z (synthetic): Drinking glass",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "compostable_plastic_cup",
+      "name": "Compostable-marked plastic cup",
+      "aliases": [
+        "compostable cup",
+        "bioplastic cup",
+        "pla cup"
+      ],
+      "material": "bioplastic",
+      "bin": null,
+      "conditions": [
+        {
+          "when": {
+            "compostable_marking": true
+          },
+          "bin": "food_and_garden",
+          "priority": 1
+        },
+        {
+          "when": {
+            "compostable_marking": false
+          },
+          "bin": "garbage",
+          "priority": 1
+        }
+      ],
+      "questions": {
+        "compostable_marking": "Is there a 'compostable' logo printed on it?"
+      },
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#compostable_plastic_cup",
+        "section": "Fixture City A-Z (synthetic): Compostable-marked plastic cup",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "paint_tin",
+      "name": "Paint tin",
+      "aliases": [
+        "paint can",
+        "tin of paint",
+        "leftover paint"
+      ],
+      "material": "metal with paint",
+      "bin": null,
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [],
+      "ask_council": true,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#paint_tin",
+        "section": "Fixture City A-Z (synthetic): Paint tin",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "gas_cylinder",
+      "name": "Gas cylinder",
+      "aliases": [
+        "camping gas canister",
+        "propane cylinder",
+        "butane canister"
+      ],
+      "material": "metal (pressurised)",
+      "bin": null,
+      "conditions": [
+        {
+          "when": {
+            "liquid_inside": true
+          },
+          "instruction": "Do not put it in any bin or take it to the drop-off centre. Book the council's hazardous waste collection day.",
+          "priority": 1
+        },
+        {
+          "when": {
+            "liquid_inside": false
+          },
+          "bin": "drop_off",
+          "prep_steps": [
+            "Take empty cylinders to the drop-off centre scrap metal bay."
+          ],
+          "priority": 1
+        }
+      ],
+      "questions": {
+        "liquid_inside": "Is there still gas or liquid inside the cylinder?"
+      },
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#gas_cylinder",
+        "section": "Fixture City A-Z (synthetic): Gas cylinder",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "aluminium_can",
+      "name": "Aluminium drinks can",
+      "aliases": [
+        "drinks can",
+        "soda can",
+        "beer can",
+        "aluminum can"
+      ],
+      "material": "aluminium",
+      "bin": "recycling",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Empty and rinse."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#aluminium_can",
+        "section": "Fixture City A-Z (synthetic): Aluminium drinks can",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "steel_food_tin",
+      "name": "Food tin",
+      "aliases": [
+        "tin can",
+        "soup tin",
+        "bean tin",
+        "steel can"
+      ],
+      "material": "steel",
+      "bin": "recycling",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Rinse it."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#steel_food_tin",
+        "section": "Fixture City A-Z (synthetic): Food tin",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "newspaper",
+      "name": "Newspaper",
+      "aliases": [
+        "newspapers",
+        "magazine",
+        "magazines"
+      ],
+      "material": "paper",
+      "bin": "recycling",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#newspaper",
+        "section": "Fixture City A-Z (synthetic): Newspaper",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "junk_mail",
+      "name": "Junk mail",
+      "aliases": [
+        "envelope",
+        "envelopes",
+        "flyer",
+        "leaflet"
+      ],
+      "material": "paper",
+      "bin": "recycling",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#junk_mail",
+        "section": "Fixture City A-Z (synthetic): Junk mail",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "egg_carton",
+      "name": "Cardboard egg carton",
+      "aliases": [
+        "egg box",
+        "egg carton"
+      ],
+      "material": "moulded pulp",
+      "bin": "food_and_garden",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#egg_carton",
+        "section": "Fixture City A-Z (synthetic): Cardboard egg carton",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "beverage_carton",
+      "name": "Drinks carton",
+      "aliases": [
+        "milk carton",
+        "juice carton",
+        "tetra pak"
+      ],
+      "material": "paperboard with plastic and foil layers",
+      "bin": "recycling",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Empty it and put the cap back on."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#beverage_carton",
+        "section": "Fixture City A-Z (synthetic): Drinks carton",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "yogurt_pot",
+      "name": "Plastic yogurt pot",
+      "aliases": [
+        "yogurt pot",
+        "yoghurt pot",
+        "margarine tub"
+      ],
+      "material": "plastic (PP)",
+      "bin": "recycling",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Rinse it; peel off the foil lid."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#yogurt_pot",
+        "section": "Fixture City A-Z (synthetic): Plastic yogurt pot",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "polystyrene_foam",
+      "name": "Polystyrene foam",
+      "aliases": [
+        "styrofoam",
+        "packing foam",
+        "foam tray"
+      ],
+      "material": "expanded polystyrene",
+      "bin": "garbage",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#polystyrene_foam",
+        "section": "Fixture City A-Z (synthetic): Polystyrene foam",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "food_scraps",
+      "name": "Food scraps",
+      "aliases": [
+        "food waste",
+        "leftovers",
+        "vegetable peelings",
+        "fruit peel"
+      ],
+      "material": "food",
+      "bin": "food_and_garden",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#food_scraps",
+        "section": "Fixture City A-Z (synthetic): Food scraps",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "garden_waste",
+      "name": "Garden waste",
+      "aliases": [
+        "grass clippings",
+        "leaves",
+        "hedge trimmings"
+      ],
+      "material": "garden organics",
+      "bin": "food_and_garden",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#garden_waste",
+        "section": "Fixture City A-Z (synthetic): Garden waste",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "tea_bag",
+      "name": "Tea bag",
+      "aliases": [
+        "teabag",
+        "tea bags",
+        "coffee grounds"
+      ],
+      "material": "food",
+      "bin": "food_and_garden",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#tea_bag",
+        "section": "Fixture City A-Z (synthetic): Tea bag",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "disposable_nappy",
+      "name": "Disposable nappy",
+      "aliases": [
+        "nappy",
+        "diaper",
+        "disposable diaper"
+      ],
+      "material": "mixed absorbent",
+      "bin": "garbage",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#disposable_nappy",
+        "section": "Fixture City A-Z (synthetic): Disposable nappy",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "clothing_textiles",
+      "name": "Clothing and textiles",
+      "aliases": [
+        "clothes",
+        "old clothes",
+        "shoes",
+        "towels",
+        "bedding"
+      ],
+      "material": "textile",
+      "bin": "drop_off",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Bag them clean and dry for the drop-off centre textile bank."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#clothing_textiles",
+        "section": "Fixture City A-Z (synthetic): Clothing and textiles",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "fluorescent_tube",
+      "name": "Fluorescent tube or energy-saving bulb",
+      "aliases": [
+        "fluorescent tube",
+        "cfl bulb",
+        "energy saving bulb"
+      ],
+      "material": "glass with mercury",
+      "bin": "hazardous_drop_off",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [
+        "Keep it whole; a broken tube releases mercury."
+      ],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#fluorescent_tube",
+        "section": "Fixture City A-Z (synthetic): Fluorescent tube or energy-saving bulb",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "aluminium_foil",
+      "name": "Aluminium foil",
+      "aliases": [
+        "tin foil",
+        "foil tray",
+        "aluminum foil"
+      ],
+      "material": "aluminium",
+      "bin": null,
+      "conditions": [
+        {
+          "when": {
+            "food_soiled": true
+          },
+          "bin": "garbage",
+          "priority": 1
+        },
+        {
+          "when": {
+            "food_soiled": false
+          },
+          "bin": "recycling",
+          "prep_steps": [
+            "Scrunch clean foil into a ball."
+          ],
+          "priority": 1
+        }
+      ],
+      "questions": {
+        "food_soiled": "Is the foil greasy or does it have food stuck to it?"
+      },
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#aluminium_foil",
+        "section": "Fixture City A-Z (synthetic): Aluminium foil",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    },
+    {
+      "id": "crisp_packet",
+      "name": "Crisp packet",
+      "aliases": [
+        "chip bag",
+        "crisps bag",
+        "snack wrapper"
+      ],
+      "material": "metallised plastic film",
+      "bin": "garbage",
+      "conditions": [],
+      "questions": {},
+      "prep_steps": [],
+      "ask_council": false,
+      "source": {
+        "kind": "fixture",
+        "url": "https://fixture-city.example.invalid/rules#crisp_packet",
+        "section": "Fixture City A-Z (synthetic): Crisp packet",
+        "retrieved_on": "2026-10-24",
+        "verified_by": "fixture-generator",
+        "verified_on": "2026-10-24"
+      }
+    }
+  ]
+}

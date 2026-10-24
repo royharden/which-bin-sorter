@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://which-bin-sorter.example.invalid/rules.schema.json",
+  "title": "Which Bin? locality rules file",
+  "description": "Shape of rules/<locality>.json (PLAN.md 4.1). The authoritative checks are in src/core/validateRules.ts, which also enforces what JSON Schema cannot express: bin ids must be declared in bins, normalized names/aliases unique across entries, every conditioned attribute has a question, no equal-priority contradictory conditions, staleness, and release-mode fixture refusals.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "locality", "bins", "fixture", "entries"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "locality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "council_url"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "council_url": { "type": "string", "pattern": "^https?://" }
+      }
+    },
+    "bins": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "label": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "fixture": { "type": "boolean" },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "nonEmptyStringArray": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "attribute": {
+      "enum": ["food_soiled", "liquid_inside", "has_lid", "contains_battery", "broken", "compostable_marking"]
+    },
+    "when": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "food_soiled": { "type": "boolean" },
+        "liquid_inside": { "type": "boolean" },
+        "has_lid": { "type": "boolean" },
+        "contains_battery": { "type": "boolean" },
+        "broken": { "type": "boolean" },
+        "compostable_marking": { "type": "boolean" }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["when", "priority"],
+      "anyOf": [{ "required": ["bin"] }, { "required": ["instruction"] }],
+      "properties": {
+        "when": { "$ref": "#/$defs/when" },
+        "bin": { "$ref": "#/$defs/id" },
+        "instruction": { "type": "string", "minLength": 1 },
+        "prep_steps": { "$ref": "#/$defs/nonEmptyStringArray" },
+        "priority": { "type": "integer" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "url", "section", "retrieved_on", "verified_by", "verified_on"],
+      "properties": {
+        "kind": { "enum": ["council", "fixture"] },
+        "url": { "type": "string", "pattern": "^https?://" },
+        "section": { "type": "string", "minLength": 1 },
+        "retrieved_on": { "$ref": "#/$defs/date" },
+        "verified_by": { "type": "string", "minLength": 1 },
+        "verified_on": { "$ref": "#/$defs/date" }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "aliases",
+        "material",
+        "bin",
+        "conditions",
+        "questions",
+        "prep_steps",
+        "ask_council",
+        "source"
+      ],
+      "properties": {
+        "id": { "allOf": [{ "$ref": "#/$defs/id" }, { "not": { "const": "none" } }] },
+        "name": { "type": "string", "minLength": 1 },
+        "aliases": { "$ref": "#/$defs/nonEmptyStringArray" },
+        "material": { "type": "string", "minLength": 1 },
+        "bin": { "anyOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
+        "conditions": { "type": "array", "items": { "$ref": "#/$defs/condition" } },
+        "questions": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/attribute" },
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        },
+        "prep_steps": { "$ref": "#/$defs/nonEmptyStringArray" },
+        "ask_council": { "type": "boolean" },
+        "source": { "$ref": "#/$defs/source" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "ask_council": { "const": true } } },
+          "then": { "properties": { "bin": { "type": "null" }, "conditions": { "maxItems": 0 } } }
+        },
+        {
+          "if": {
+            "properties": { "ask_council": { "const": false }, "conditions": { "maxItems": 0 } }
+          },
+          "then": { "properties": { "bin": { "$ref": "#/$defs/id" } } }
+        },
+        {
+          "if": { "properties": { "conditions": { "minItems": 1 } } },
+          "then": { "properties": { "bin": { "type": "null" } } }
+        }
+      ]
+    }
+  }
+}
