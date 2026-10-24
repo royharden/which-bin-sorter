@@ -22,6 +22,7 @@ import {
 import type { PriceEntry, PricesConfig } from "../supabase/functions/identify/serverConfig.ts";
 import * as visionSchema from "../supabase/functions/identify/visionSchema.ts";
 import { PROMPT_VERSION } from "../supabase/functions/identify/prompt.ts";
+import { PREPROCESSING_VERSION as BROWSER_PREPROCESSING_VERSION, MAX_DIMENSION, UPLOAD_CAP_BYTES } from "../src/intake/reencode.ts";
 
 const PRICE: PriceEntry = {
   model_id: "test-model",
@@ -84,7 +85,9 @@ describe("version constants", () => {
     expect(PREPROCESSING_VERSION).toBe("jpeg-1024-v1");
     expect(SCHEMA_VERSION).toBe(visionSchema.SCHEMA_VERSION);
     expect(PREPROCESSING_VERSION).toBe(visionSchema.PREPROCESSING_VERSION);
-    // M3 adds: src/intake/reencode.ts imports PREPROCESSING_VERSION from visionSchema.ts; assert equality there.
+    expect(BROWSER_PREPROCESSING_VERSION).toBe(PREPROCESSING_VERSION);
+    expect(MAX_DIMENSION).toBe(RUNTIME_CONFIG.max_dimension);
+    expect(UPLOAD_CAP_BYTES).toBe(RUNTIME_CONFIG.upload_cap_bytes);
   });
 
   it("the server-owned prompt version equals config/model.json", () => {

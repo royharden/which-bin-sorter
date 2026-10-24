@@ -164,3 +164,26 @@ where client_hash = repeat(:'rate_char', 64) and op = 'feedback'
 Record A/B responses, both durable-state checks and the rollback checks separately for each case. A premature B
 response, `rate_limited` on the duplicate, an extra row/increment, an overwritten digest or a retained rejected
 id fails this regression. Database privileges and direct UPDATE/DELETE/TRUNCATE rejection remain M2-5 checks.
+
+## Added in M3 (intake, UI and demo journey)
+
+All M3 source and test files are **written, never executed**. The approved outer-shell parser only stripped and
+parsed `.ts` files without linking or evaluating them. It explicitly skipped TSX; those files received manual
+source inspection only. CSS, canvas output, responsive appearance and assistive-technology behavior have not
+been rendered or checked in a browser. M1-9's placeholder is superseded by the M3 app, still unrendered.
+
+| # | What | Why deferred | Exact command / activation procedure |
+|---|---|---|---|
+| M3-1 | Intake signature/MIME/cap, injected encoder resize/retry/APP1 contract, SHA-256/base64, demo/live client boundaries and feedback receipts | Test execution forbidden in construction | `npx vitest run tests/sniff.test.ts tests/reencode.test.ts tests/hashes.test.ts tests/visionClient.test.ts tests/feedbackSink.test.ts tests/config.test.ts` |
+| M3-2 | Full eight-step demo journey, all three result cards, disclaimers/council links, typed path with zero vision calls, reset, consent, retry identity, exactly-one feedback and object URL cleanup | Component tests are source only; canvas/encoder seams are injected, not browser evidence | `npx vitest run tests/App.journey.test.tsx tests/ResultCard.test.tsx tests/TypedSearch.test.tsx` |
+| M3-3 | Completed browser dependency graph and re-encoder parity (M2-7 assertion is now written) | AST tests and bundle inspection still unexecuted | `npx vitest run tests/serverConfig.test.ts tests/static/import-boundaries.test.ts tests/static/only-resolver-selects-bins.test.ts`; then #3's build/bundle check |
+| M3-4 | TSX, ambient import.meta.env declarations, strict types, Supabase invocation/error APIs, JSX and CSS build | Node's approved parser does not typecheck, resolve modules, parse TSX or render CSS | `npm run typecheck && npm run lint && npm run build` |
+| M3-5 | Real-browser default createImageBitmap/OffscreenCanvas/HTML canvas and Image fallback, EXIF/GPS/orientation, JPEG output cap, URL cleanup, file chooser and iPhone HEIC | No browser, device, decoding, canvas or runtime execution allowed | After #1/#3, reserve a dev port through agent-ports, run `npm run dev -- --port <reserved-port>`, and perform #9/#10; inspect APP1 and dimensions for portrait/transparent/oversize files in Chrome and Safari, including the Image fallback; inspect URL revocations on replacement/unmount |
+| M3-6 | Responsive layout, keyboard focus, screen reader announcements, reduced-motion and real eight-step tile journey | UI has only been inspected as source | Use the same reserved-port dev server at 375/768/1280 px; complete PLAN section 1 with keyboard and pointer, test all sample tiles, check focus/announcements, and confirm demo has no network requests |
+| M3-7 | Fixture PNG generator writes usable synthetic images and hash manifest, with no overwritten files | Generator source parsed only; not executed | `npx tsx scripts/make-fixture-images.ts` in a fresh output set; inspect `eval/fixtures/images/*.png` and `source-hashes.json`, review generated aliases, then commit approved outputs as in #22 |
+| M3-8 | Real live consent gate, edge error-body extraction, provenance/version/photo checks, replay and confirmed feedback saved receipts | No network, configured backend, provider dispatch or paid calls allowed | After #2/#4-#12 and explicit activation authorization, test consent cancel/accept, mock provenance refusal, same-request retry and confirmed/idempotent feedback through the actual deployed function; never treat fixture responses as live evidence |
+
+M3 preserves accepted M1 rule text and source anchors: the aerosol question asks whether product/liquid remains,
+and the pizza-box source anchor is `#pizza_box`. The plan's narrative paraphrases differ. A live
+`invalid_vision_output` error does not contain a model id; its UI provenance is honestly labelled
+`live · response rejected`, while successful responses require `live:<confirmed model-id>`.
