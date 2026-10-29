@@ -19,7 +19,7 @@ Status of every row: **pending**.
 | 6 | `reserve_model_call` atomicity and idempotency under concurrency | Stubs cannot prove SQL concurrency | Concurrent-call script against the deployed RPC at the cap (two calls cannot both pass; same id + digest replays) |
 | 7 | Gateway `verify_jwt` setting vs key type | Needs the platform | Deploy, then call `identify` with and without the anon key and confirm the documented behaviour |
 | 8 | Trusted client address source + spoof test | Platform-specific; `trusted_address_source` is null until activation | Set `config/runtime.json` `trusted_address_source`, then send a spoofed `X-Forwarded-For` and confirm the hash ignores it |
-| 8a | Uncertain-reservation reconcile runbook | Needs real ledger rows | Write and dry-run the runbook against a ledger row in status `uncertain` |
+| 8a | Uncertain-reservation reconcile runbook | Needs real ledger rows | Write and dry-run the runbook against a ledger row in status `uncertain`: reconcile provider usage/billing with daily-budget totals and preserve an auditable charge/correction receipt tied to request/digest. Require this for every purge-eligible uncertain row BEFORE invoking purge; unresolved charges block purge |
 | 9 | Real-browser canvas re-encode strips EXIF/GPS and caps at 1024 px | No browsers in Dirty Mode | Upload a GPS-tagged JPEG in Chrome/Safari; inspect the re-encoded bytes for an APP1 segment and dimensions |
 | 10 | HEIC on iPhone is rejected with the "use JPEG/PNG" copy | Needs a device | Upload a HEIC photo from an iPhone in demo mode |
 | 11 | Anthropic request shape and token usage | No network or paid calls in Dirty Mode | One budgeted live call with `LIVE_MODEL_ENABLED=true`; compare the ledger row to provider usage |
@@ -49,3 +49,196 @@ Status of every row: **pending**.
 | M1-7 | JSON module imports (`rules/fixture-city.json`, `config/thresholds.json`) resolve under Vite, Vitest and tsx | No bundler / runner executed | Covered by M1-1 (`vitest`) and #3 (`npm run build`); for tsx: `npx tsx -e "import('./src/core/loadRules.ts').then(m => m.loadFixtureCity('2026-10-24')).then(r => console.log(r.version))"` |
 | M1-8 | WebCrypto `crypto.subtle` is available in the Vitest `node` environment (sha256, rules_version) | Not run | Covered by M1-1 (`tests/hash.test.ts`) on Node >= 20 |
 | M1-9 | Placeholder `src/ui/App.tsx` + `src/main.tsx` render | No dev server / browser in Dirty Mode | `npm run dev` and open the page (shows the "Fixture: not real disposal guidance" note) |
+
+## Added in M2 (vision contract, function and database)
+
+M2 was completed from inherited, uncommitted source. Static inspection and the outer syntax-only parser do not
+establish that these contracts, type checks or migrations pass. All test sources below are written, never run.
+
+| # | What | Why deferred | Exact command / activation procedure |
+|---|---|---|---|
+| M2-1 | Vision schema, mock traps, browser normalization, closed-list parity, config/rule mirrors, image bounds and handler contracts | Test execution forbidden in Dirty Mode | `npx vitest run tests/visionSchema.test.ts tests/itemIds.test.ts tests/serverConfig.test.ts tests/ruleCatalog.test.ts tests/imageHeader.test.ts tests/handler.test.ts` |
+| M2-2 | AST dependency graph and bin-construction invariants over the completed M2 tree | The static tests themselves have not executed; parsing a test does not prove its assertions | `npx vitest run tests/static/import-boundaries.test.ts tests/static/only-resolver-selects-bins.test.ts` |
+| M2-3 | Strict TypeScript, ESLint directory restrictions and dependency API compatibility | Only erasable-TS syntax was parsed; no resolver/type checker/linter ran | `npx tsc --noEmit -p tsconfig.json && npx tsc --noEmit -p tsconfig.node.json && npx eslint .` |
+| M2-4 | Deno entrypoint, pinned esm.sh supabase-js import and RPC argument serialization | No Deno or network in Dirty Mode | `deno check supabase/functions/identify/index.ts`; after provisioning, exercise identify/feedback through Bolt with placeholder-priced smoke configuration before any authorized paid call |
+| M2-5 | RPC privileges, rollback of ledger/rate/budget guards, concurrent idempotency and append-only feedback | FakeLedger tests only the handler seam; SQL was inspected, never applied | After #4-#6, attempt every RPC as anon/authenticated, submit same/different digests concurrently at the budget cap, compare all four tables, and confirm feedback UPDATE/DELETE/TRUNCATE are rejected |
+| M2-6 | Settlement failure / uncertain-row reconciliation, 30-day retention and operator purge | No real ledger; retained reservations must never be automatically refunded | BEFORE invoking purge, complete #8a reconciliation against provider usage/billing and daily-budget totals for every eligible uncertain row and preserve auditable receipts; defer purge while any charge remains unresolved. Only then call `select public.purge_expired_call_ledger(30);` as the operator. Confirm expired non-reserved rows, including uncertain rows, expire; reserved rows remain and purge leaves daily-budget totals unchanged |
+| M2-7 | Full browser graph, no server config in bundle, preprocessing-version parity | M3 has not wired the normalizer into the UI or authored the re-encoder yet | At M3 add the re-encoder parity assertion to `tests/serverConfig.test.ts`; then run `npx vitest run tests/serverConfig.test.ts tests/static/import-boundaries.test.ts` and the build/bundle check in #3 |
+| M2-8 | Item-id generator reproducibility and M1 carry-forward fixes (null CLI input, independent reason-code coverage, combining-mark escape) | No generators, CLI scripts or tests may run now | `npx tsx scripts/gen-item-ids.ts --check`; run M1-1 and M1-5, including a temporary JSON file containing only `null` passed to `scripts/validate-rules.ts` (must report invalid rules rather than throw) |
+| M2-9 | Feedback idempotency wins over a concurrent final rate slot, and a full-window rejection rolls back a new feedback id | SQL concurrency and database execution forbidden in Dirty Mode | Run both two-session cases and the guard rollback check in "Feedback concurrency activation regression" below against an isolated database with the migrations applied |
+
+Settlement caveat: the handler attempts one settlement per dispatch. If the database cannot accept settlement,
+the row remains reserved and requires operator reconciliation; successful provider output is returned with
+`settlement_pending:true`. Error-path settlement failures also return `settlement_pending:true` alongside the
+original error code. Final ledger status cannot be guaranteed during a DB outage; reserved rows need operator
+reconciliation. No request is redispatched automatically.
+
+## Feedback concurrency activation regression (M2-9)
+
+**Pending; written after M2 review round 1, never executed.** This catches a duplicate request receiving
+`rate_limited` after another transaction saved the same feedback id. FakeLedger and sequential handler tests
+cannot reproduce the database lock interleaving. Use a fresh isolated database with all four migrations applied,
+two independent operator connections, and no other writers. These are synthetic RPC-level digests and reports;
+no model, real user data or paid call is needed. Do not disable append-only triggers or delete feedback to reset
+a case. Use different ids/rate keys for the two cases as specified below.
+
+Open terminal A and terminal B with `psql '<isolated-db-connection>' -X -v ON_ERROR_STOP=1`. This is a future
+activation command, not a command run during construction. In **both** terminals select the same case settings:
+
+```psql
+-- Case 1: identical digest; terminal B must return replay, never rate_limited.
+\set feedback_id 31000000-0000-4000-8000-000000000001
+\set rate_char c
+\set second_digest_char a
+```
+
+For case 2 repeat the entire procedure with these settings in both terminals instead:
+
+```psql
+-- Case 2: different digest; terminal B must return conflict, never rate_limited.
+\set feedback_id 31000000-0000-4000-8000-000000000002
+\set rate_char d
+\set second_digest_char b
+```
+
+The test limit is **2**. The intentionally long test window (`2147483647` seconds) prevents a window boundary
+from changing the interleaving. In terminal A, seed the committed rate counter to **limit - 1 = 1**, then claim
+the new feedback id and consume the final slot inside a transaction that stays open:
+
+```sql
+insert into public.rate_window (client_hash, op, window_start, count)
+values (repeat(:'rate_char', 64), 'feedback',
+        floor(extract(epoch from now()) / 2147483647)::bigint, 1);
+
+begin isolation level read committed;
+select public.record_feedback(
+  :'feedback_id'::uuid, repeat('a', 64), null, 'other', null,
+  '{"type":"abstain"}'::jsonb, 'm2-concurrency-fixture',
+  repeat(:'rate_char', 64), repeat(:'rate_char', 64), 2, 2147483647
+);
+-- Expected: {"status":"saved"}. Leave this transaction open; do not commit yet.
+```
+
+In terminal B submit the same id, using the selected case's second digest:
+
+```sql
+begin isolation level read committed;
+select public.record_feedback(
+  :'feedback_id'::uuid, repeat(:'second_digest_char', 64), null, 'other', null,
+  '{"type":"abstain"}'::jsonb, 'm2-concurrency-fixture',
+  repeat(:'rate_char', 64), repeat(:'rate_char', 64), 2, 2147483647
+);
+-- This statement must wait while terminal A's transaction remains open.
+```
+
+Only after B is waiting, issue `commit;` in A. B must then return `{"status":"replay"}` in case 1 or
+`{"status":"conflict"}` in case 2. Issue `commit;` in B. In B, verify both expressions return `true`:
+
+```sql
+select count(*) = 1 and min(feedback_digest) = repeat('a', 64) as one_original_report
+from public.feedback where feedback_id = :'feedback_id'::uuid;
+select count = 2 as exactly_one_allowance_consumed
+from public.rate_window
+where client_hash = repeat(:'rate_char', 64) and op = 'feedback'
+  and window_start = floor(extract(epoch from now()) / 2147483647)::bigint;
+```
+
+Finally, with that rate window still full, submit a **new** id to exercise the guard rollback. Run in B:
+
+```sql
+select public.record_feedback(
+  '31000000-0000-4000-8000-000000000099'::uuid, repeat('e', 64), null, 'other', null,
+  '{"type":"abstain"}'::jsonb, 'm2-concurrency-fixture',
+  repeat(:'rate_char', 64), repeat(:'rate_char', 64), 2, 2147483647
+);
+-- Expected: {"status":"rate_limited"}.
+select count(*) = 0 as rejected_claim_rolled_back
+from public.feedback where feedback_id = '31000000-0000-4000-8000-000000000099'::uuid;
+select count = 2 as rejected_claim_did_not_consume_allowance
+from public.rate_window
+where client_hash = repeat(:'rate_char', 64) and op = 'feedback'
+  and window_start = floor(extract(epoch from now()) / 2147483647)::bigint;
+-- Both expressions must be true. The rollback must succeed with append-only triggers enabled.
+```
+
+Record A/B responses, both durable-state checks and the rollback checks separately for each case. A premature B
+response, `rate_limited` on the duplicate, an extra row/increment, an overwritten digest or a retained rejected
+id fails this regression. Database privileges and direct UPDATE/DELETE/TRUNCATE rejection remain M2-5 checks.
+
+## Added in M3 (intake, UI and demo journey)
+
+All M3 source and test files are **written, never executed**. The approved outer-shell parser only stripped and
+parsed `.ts` files without linking or evaluating them. It explicitly skipped TSX; those files received manual
+source inspection only. CSS, canvas output, responsive appearance and assistive-technology behavior have not
+been rendered or checked in a browser. M1-9's placeholder is superseded by the M3 app, still unrendered.
+
+| # | What | Why deferred | Exact command / activation procedure |
+|---|---|---|---|
+| M3-1 | Intake signature/MIME/cap, injected encoder resize/retry/APP1 contract, SHA-256/base64, demo/live client boundaries and feedback receipts | Test execution forbidden in construction | `npx vitest run tests/sniff.test.ts tests/reencode.test.ts tests/hashes.test.ts tests/visionClient.test.ts tests/feedbackSink.test.ts tests/config.test.ts` |
+| M3-2 | Full eight-step demo journey, all three result cards, disclaimers/council links, typed path with zero vision calls, reset, consent, retry identity, exactly-one feedback and object URL cleanup | Component tests are source only; canvas/encoder seams are injected, not browser evidence | `npx vitest run tests/App.journey.test.tsx tests/ResultCard.test.tsx tests/TypedSearch.test.tsx` |
+| M3-3 | Completed browser dependency graph and re-encoder parity (M2-7 assertion is now written) | AST tests and bundle inspection still unexecuted | `npx vitest run tests/serverConfig.test.ts tests/static/import-boundaries.test.ts tests/static/only-resolver-selects-bins.test.ts`; then #3's build/bundle check |
+| M3-4 | TSX, ambient import.meta.env declarations, strict types, Supabase invocation/error APIs, JSX and CSS build | Node's approved parser does not typecheck, resolve modules, parse TSX or render CSS | `npm run typecheck && npm run lint && npm run build` |
+| M3-5 | Real-browser default createImageBitmap/OffscreenCanvas/HTML canvas and Image fallback, EXIF/GPS/orientation, JPEG output cap, URL cleanup, file chooser and iPhone HEIC | No browser, device, decoding, canvas or runtime execution allowed | After #1/#3, reserve a dev port through agent-ports, run `npm run dev -- --port <reserved-port>`, and perform #9/#10; inspect APP1 and dimensions for portrait/transparent/oversize files in Chrome and Safari, including the Image fallback; inspect URL revocations on replacement/unmount |
+| M3-6 | Responsive layout, keyboard focus, screen reader announcements, reduced-motion and real eight-step tile journey | UI has only been inspected as source | Use the same reserved-port dev server at 375/768/1280 px; complete PLAN section 1 with keyboard and pointer, test all sample tiles, check focus/announcements, and confirm demo has no network requests |
+| M3-7 | Fixture PNG generator writes usable synthetic images and hash manifest, with no overwritten files | Generator source parsed only; not executed | `npx tsx scripts/make-fixture-images.ts` in a fresh output set; inspect `eval/fixtures/images/*.png` and `source-hashes.json`, review generated aliases, then commit approved outputs as in #22 |
+| M3-8 | Real live consent gate, edge error-body extraction, provenance/version/photo checks, replay and confirmed feedback saved receipts | No network, configured backend, provider dispatch or paid calls allowed | After #2/#4-#12 and explicit activation authorization, test consent cancel/accept, mock provenance refusal, same-request retry and confirmed/idempotent feedback through the actual deployed function; never treat fixture responses as live evidence |
+
+M3 preserves accepted M1 rule text and source anchors: the aerosol question asks whether product/liquid remains,
+and the pizza-box source anchor is `#pizza_box`. The plan's narrative paraphrases differ. A live
+`invalid_vision_output` error does not contain a model id; its UI provenance is honestly labelled
+`live · response rejected`, while successful responses require `live:<confirmed model-id>`.
+
+## Added in M4 (evaluation harness)
+
+All evaluation source, 60 synthetic text rows, eight authored photo-manifest fixtures and 32 fixture cache
+records are **written, never executed**. Fixture cache is keyed by method/fixture id and labelled authored,
+not recorded. Syntax parsing does not typecheck, link modules, run Vitest, validate model behavior or measure
+accuracy/cost/latency. Real model/prices remain unconfigured; no spend is authorized by these future commands.
+
+| # | What | Why deferred | Exact activation command / procedure |
+|---|---|---|---|
+| M4-1 | Wilson hand values, metric denominators/N/A, contamination cost, grouped split, cache identity, budget/heldout guards and offline report content | Tests are source only under Dirty Mode | `npx vitest run tests/wilson.test.ts tests/riskCoverage.test.ts tests/costScore.test.ts tests/split.test.ts tests/metrics.test.ts tests/evalCache.test.ts tests/eval.offline.test.ts` |
+| M4-2 | Type/lint compatibility and AST boundaries for script transports, injected photo adapter and pure evalkit | Only the permitted syntax parser ran | `npm run typecheck && npm run lint && npx vitest run tests/static/import-boundaries.test.ts tests/static/only-resolver-selects-bins.test.ts` |
+| M4-3 | Actual offline report and optional generated limitations content | No script/generator execution permitted | `npm run eval -- --offline --fixture --split dev --out results/fixture-dev --limitations results/fixture-dev/LIMITATIONS.md`; inspect results.md/results.jsonl and every method row; a fresh output directory is required on repeat |
+| M4-4 | Dev-only grid objective, >=0.60 answer coverage, fixed tie order and explicit infeasible result | No tuning executed; fixture thresholds are not real tuning | `npx tsx scripts/tune-thresholds.ts --fixture --split dev --out results/fixture-threshold-tuning.json`; real dev cache later: `npx tsx scripts/tune-thresholds.ts --manifest eval/manifest.jsonl --split dev --out results/dev-threshold-tuning.json`; review before any manual promotion to config; tuning refuses after results/heldout.lock exists |
+| M4-5 | Pure-JS MIT decoder/encoder selection, provenance/license verification and normalization/EXIF/orientation/dimension behavior | Package choice and installation deferred; prep is against PhotoAdapter interface only | After separately auditing/installing a codec, author an adapter exporting `adapter: PhotoAdapter`; then `npx tsx scripts/prep-photos.ts --input eval/gold-input.jsonl --adapter ./scripts/activation-photo-adapter.ts --seed s31-gold-v1 --out eval/photos --manifest eval/manifest.jsonl --rules rules/fixture-city.json`; inspect .prep.json receipts and output JPEGs; input needs source_file, ids/groups, licensed gold annotations; file/hash/split are generated |
+| M4-6 | Live transport, exact returned model ID, token-bound math, ledger durability and two-process exclusion under actual I/O failures | No provider dispatch, paid call or filesystem-lock runtime exercised | With separate live/spend authorization, pin verified model and sourced prices in root config, supply ANTHROPIC_API_KEY, LIVE_MODEL_ENABLED=true and explicit EVAL_BUDGET_USD; then `npm run eval -- --live --manifest eval/manifest.jsonl --split dev --out results/live-dev`; verify preflight refusal without sufficient cap and second-process refusal while budget.lock is held; inspect append-only eval/ledger.jsonl; timeout/unknown usage retains full reservation; never clear an abandoned lock without reconciling cost |
+| M4-7 | Offline exact-identity replay of recorded live responses | No live responses exist | After M4-6: `npm run eval -- --offline --manifest eval/manifest.jsonl --split dev --out results/live-dev-replay`; no key or live flag needed; exact model config and all cache records are required; any miss or mock provenance fails |
+| M4-8 | Single heldout run and report fairness on real gold photos | Gold set absent; no exposure or run authorized | After dev tuning is frozen and live/spend authorization exists: `npm run eval -- --live --manifest eval/manifest.jsonl --split heldout --confirm-heldout-once --out results/live-heldout`; results/heldout.lock is atomically created with run/date/manifest/method/config digests and is never automatically removed; repeat refused. Review exact System subset, 5u intersection, actual equal-coverage denominators, named contamination errors and incomplete status |
+| M4-9 | Expand text corpus toward 200, collect/license 120 real photos, review ground truth, real-locality table, CLIP adapter/license/run and optional Jev | Construction bounded to >=60 text rows and authored cache; no external data/package acquisition | Review gold annotations and grouped dev/heldout counts before M4-5/M4-8. CLIP stays typed `not run`; Jev stays `not evaluated / not included`. No command can claim either ran |
+
+M4 implements an additional explicit `--fixture` selector so `--offline` alone cannot silently substitute
+authored responses for missing real cache. The no-abstain row reuses System identification and reports that
+identification's per-method cost rather than charging a second call. T1 has zero provider cost and unavailable
+latency; fixture model cost/latency remain N/A. The frozen text split is hand-authored 36/24 with item groups
+disjoint within the text track; photo preparation uses seeded item-group hashing and reports actual counts.
+Budget release archives its exclusive lock receipt; a process crash retains the lock for operator review.
+
+### M4 review rework regressions
+
+Written after M4 review round 1; **never executed** under Dirty Mode. The CLI regression uses synthetic
+header-only JPEG bytes, test-only configuration and replaced transport; it must make no provider/network call.
+
+| # | What | Why deferred | Exact activation command |
+|---|---|---|---|
+| M4-R1 | Aggregate preflight rejection writes incomplete reports/optional limitations, returns 1, makes no dispatch or spend reservation and leaves heldout unconsumed; invalid budget/occupied lock remain hard errors | Test and CLI execution forbidden during construction | `npx vitest run tests/eval.preflight.test.ts` |
+| M4-R2 | Mixed valid/rejected System attribute precision/recall/null denominators, wholly missing attribute-capable outputs, methods without attribute capability and zero-gold N/A | Tests written only; syntax parse does not establish runtime behavior | `npx vitest run tests/metrics.test.ts` |
+| M4-R3 | Different confidence tie groups expose actual independent floors and mark the equal-coverage comparison unavailable in JSON and report prose | No report or tests executed during construction | `npx vitest run tests/metrics.test.ts tests/eval.offline.test.ts` |
+
+Preflight rejection conservatively marks all planned paid methods (and System's no-abstain reuse) incomplete;
+cached paid results are not replayed on this branch. Deterministic typed-oracle/T1 rows are retained. Attribute
+capability keeps rejected/unavailable System predictions in known-gold recall and all eligible null/missing
+denominators; a method that does not predict attributes retains N/A. Equal-coverage results carry a `matched`
+or `unavailable` status; independently floored unequal coverages remain visible and are not called matched.
+
+## Added in M5 (documentation and activation handoff)
+
+README, BOLT-HANDOFF, source/architecture/limitations templates, .env.example and acceptance map are authored
+source documentation only. No command in them has been run. All earlier pending entries remain pending.
+
+| # | What | Why deferred | Exact later action |
+|---|---|---|---|
+| M5-1 | Full documented install/type/lint/test/build workflow, including eval.preflight regression | Dirty Mode forbids install/runtime; no lockfile exists | After authorized activation: npm install, review/commit package-lock.json, npm ci, npm run typecheck, npm run lint, npm test, npm run build, deno check supabase/functions/identify/index.ts |
+| M5-2 | Bolt readiness/inventory and deployed receipts | No cloud provisioning/import/deploy authorized | Use BOLT-HANDOFF.md inspection-only prompt first; obtain separate setup authority and then follow #2/#4–#12; record actual receipts |
+| M5-3 | Consent/retention operations, real source and photo rights | Owner decisions and real services absent | Roy reviews LiveConsent.tsx and provider policy; name council and human verifier, fill rules/SOURCES.md, approve photo/codec licences and retention/reconciliation procedure before live uploads. The procedure must require #8a/M2-6 provider-charge/daily-budget reconciliation and auditable receipts BEFORE invoking purge; only reserved rows are protected, expired uncertain rows are eligible, no ledger scheduler exists and feedback has no automatic purge |
+| M5-4 | Generated limitations and honest published evidence | Generator/eval never executed | Use M4-3 into a fresh output directory, review generated LIMITATIONS.md; real evidence requires M4-5–M4-8 and must keep incomplete/unavailable/not-run labels |

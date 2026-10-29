@@ -1,0 +1,1 @@
+{"fixture_id":"low_confidence","method_id":"system","provenance":"mock","note":"authored, not recorded","raw":{"item_count":1,"candidates":[{"item_id":"aluminium_foil","confidence":0.55}],"free_label":"crumpled foil","attributes":{"food_soiled":false,"liquid_inside":null,"has_lid":null,"contains_battery":null,"broken":null,"compostable_marking":null,"image_quality":"good"}}}

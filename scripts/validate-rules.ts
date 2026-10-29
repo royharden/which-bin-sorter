@@ -75,9 +75,10 @@ export async function main(argv: readonly string[]): Promise<number> {
     const report = validateRules(raw, { today, mode, stale });
     for (const issue of report.warnings) console.warn(`${file}: WARN  ${issue.code} at ${issue.path}: ${issue.message}`);
     for (const issue of report.errors) console.error(`${file}: ERROR ${issue.code} at ${issue.path}: ${issue.message}`);
-    const entryCount = Array.isArray((raw as { entries?: unknown }).entries)
-      ? (raw as { entries: unknown[] }).entries.length
-      : 0;
+    const entryCount =
+      typeof raw === "object" && raw !== null && Array.isArray((raw as { entries?: unknown }).entries)
+        ? (raw as { entries: unknown[] }).entries.length
+        : 0;
     if (report.ok) {
       const version = await computeRulesVersion(raw);
       console.log(

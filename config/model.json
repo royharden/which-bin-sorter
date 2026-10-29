@@ -1,0 +1,6 @@
+{
+  "provider": "anthropic",
+  "model_id": null,
+  "prompt_version": "identify-v1",
+  "status": "unconfigured"
+}

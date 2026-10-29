@@ -1,0 +1,8 @@
+{
+  "version": "fixture-generic-v1-frozen-before-evaluation",
+  "locality": "fixture-city",
+  "note": "Deliberately generic material advice mapped once to fixture streams; never tuned to heldout.",
+  "material_to_generic": { "paper": "dry_recyclables", "cardboard": "dry_recyclables", "plastic": "dry_recyclables", "glass": "dry_recyclables", "metal": "dry_recyclables", "organic": "organics", "textile": "special_collection", "battery": "hazardous", "other": "residual" },
+  "generic_to_locality": { "dry_recyclables": "recycling", "organics": "food_and_garden", "special_collection": "drop_off", "hazardous": "hazardous_drop_off", "residual": "garbage" },
+  "keywords": [ ["battery", "battery"], ["batteries", "battery"], ["cardboard", "cardboard"], ["paper", "paper"], ["plastic", "plastic"], ["glass", "glass"], ["aluminium", "metal"], ["aluminum", "metal"], ["tin", "metal"], ["can", "metal"], ["food", "organic"], ["leaves", "organic"], ["clothes", "textile"] ]
+}

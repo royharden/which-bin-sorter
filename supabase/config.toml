@@ -1,0 +1,15 @@
+# Supabase / Bolt Database project config (PLAN.md 2, 3). Only what this app uses: one edge function and the
+# ordered migrations in supabase/migrations. No auth flows, storage buckets, Realtime or cron.
+# Never applied in Dirty Mode (DEFERRED-VALIDATION #2, #4, #7).
+
+project_id = "which-bin-sorter"
+
+[db]
+major_version = 15
+
+[functions.identify]
+# Gateway JWT verification stays ON (fail closed): the browser calls with the project's anon key.
+# Whether this works with the platform's key type (legacy JWT anon key vs publishable key) is checked at
+# activation (DEFERRED-VALIDATION #7); the function itself never trusts the caller's identity, only the
+# platform-pinned client address source (config/runtime.json trusted_address_source).
+verify_jwt = true
